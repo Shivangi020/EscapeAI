@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,23 +18,19 @@ import Hero from "@/components/ui/hero";
 export default function Home() {
   const router = useRouter();
   const [destination, setDestination] = useState("Paris");
-  const [placeId, setPlaceId] = useState("");
-  const [fromDate, setFromDate] = useState<Date>();
-  const [toDate, setToDate] = useState<Date>();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = () => {
-    if (!destination || !placeId) return;
+  const [toDate, setToDate] = useState<Date>(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 2);
+    return date;
+  });
+  const [fromDate, setFromDate] = useState<Date>(new Date());
 
-    setIsLoading(true);
-
-    // In a real app, we would encode these parameters properly
+  const handleGenerateItinerary = async () => {
     router.push(
-      `/itinerary?place=${encodeURIComponent(
-        destination
-      )}&placeId=${placeId}&from=${fromDate?.toISOString() || ""}&to=${
-        toDate?.toISOString() || ""
-      }`
+      `/itinerary?place=${encodeURIComponent(destination)}&from=${
+        fromDate?.toISOString() || ""
+      }&to=${toDate?.toISOString() || ""}`
     );
   };
 
@@ -60,13 +56,7 @@ export default function Home() {
                 <span className="text-xs text-gray-500">Location</span>
                 <div className="flex">
                   <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-                  <PlaceSearch
-                    initialValue={destination}
-                    onPlaceSelect={(place) => {
-                      setDestination(place.description);
-                      setPlaceId(place.place_id);
-                    }}
-                  />
+                  <PlaceSearch initialValue={destination} />
                 </div>
               </div>
             </div>
@@ -89,24 +79,24 @@ export default function Home() {
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    {/* <CalendarComponent
+                    <CalendarComponent
                       mode="range"
                       selected={{
                         from: fromDate || undefined,
                         to: toDate || undefined,
                       }}
                       onSelect={(range) => {
-                        setFromDate(range?.from);
-                        setToDate(range?.to);
+                        // setFromDate(range?.from);
+                        // setToDate(range?.to);
                       }}
-                    /> */}
+                    />
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
 
             <Button
-              onClick={handleSearch}
+              onClick={handleGenerateItinerary}
               className="rounded-full px-8 py-6 bg-lime-400 hover:bg-lime-500 text-black font-medium"
             >
               Generate Now

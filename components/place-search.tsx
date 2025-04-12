@@ -2,24 +2,11 @@
 
 import { useState } from "react";
 
-interface PlaceResult {
-  place_id: string;
-  description: string;
-  structured_formatting?: {
-    main_text: string;
-    secondary_text: string;
-  };
-}
-
 interface PlaceSearchProps {
-  onPlaceSelect: (place: PlaceResult) => void;
   initialValue?: string;
 }
 
-export default function PlaceSearch({
-  onPlaceSelect,
-  initialValue = "",
-}: PlaceSearchProps) {
+export default function PlaceSearch({ initialValue = "" }: PlaceSearchProps) {
   const [inputValue, setInputValue] = useState(initialValue);
 
   const handleInputChange = (value: string) => {

@@ -1,152 +1,122 @@
-import { addDays } from "date-fns"
+import { TravelItinerary } from "@/types";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-interface ItineraryDay {
-  day: number
-  date: Date
-  title: string
-  location: string
-  time?: string
-  description: string
-  image: string
+const apiKey = process.env.GEMINI_API_KEY || "";
+const genAI = new GoogleGenerativeAI("");
+
+const instruction = `Follow this structure **exactly**:
+{
+  "destination": "Destination Name",
+  "type": "Type of destination (e.g., trek, market, beach, etc.)",
+  "days": Number of days in itinerary,
+  "totalPlaces": Total number of places included in the itinerary,
+  "itinerary": [
+    {
+      "day": 1,
+      "attractions": [
+        { 
+          "name": "Attraction Name", 
+          "description": "Short description", 
+          "address": "Location" 
+        }
+      ],
+      "schedule": [
+        { 
+          "time": "08:00 AM", 
+          "activity": "Breakfast at Cafe Name",
+          "typeOfActivity": **MUST** be one of the following categories:
+          [
+          "food",
+          "museum",
+          "mountain",
+          "shopping",
+          "beach",
+          "park",
+          "historical site",
+          "religious site",
+          "adventure",
+          "cultural experience",
+          "nightlife",
+          "wellness",
+          "nature",
+          "art gallery",
+          "sports",
+          "transportation",
+          "local market",
+          "theme park",
+          "workshop/class",
+          "scenic viewpoint",
+          "urban exploration"
+],
+          "attractionName": "Attraction or place name"
+        },
+        { 
+          "time": "10:00 AM", 
+          "activity": "Visit Attraction Name",
+          "typeOfActivity": **MUST** be one of the above categories,
+          "attractionName": "Attraction or place name"
+        }
+      ]
+    }
+  ]
 }
 
-// Mock function to simulate Gemini API for generating itineraries
-export async function generateItinerary(
+Return only **valid JSON**. **Do NOT include explanations, additional text, or markdown formatting.**`;
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.0-flash",
+  systemInstruction: instruction,
+});
+
+const generationConfig = {
+  temperature: 1,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 8192,
+  responseMimeType: "application/json",
+};
+
+type Itinerary = Record<string, any>; // You can define a stricter interface based on expected structure
+
+type GeminiContentPart = { text: string };
+type GeminiCandidate = { content: { parts: GeminiContentPart[] } };
+type GeminiResponse = {
+  response: {
+    candidates: GeminiCandidate[];
+  };
+};
+
+export async function generateItineraryUsingGemini(
   destination: string,
-  placeId: string,
-  fromDate: Date,
-  toDate: Date,
-): Promise<ItineraryDay[]> {
-  // In a real app, this would call the Gemini API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const days = []
-      const totalDays = Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  days: number = 3
+): Promise<TravelItinerary | undefined> {
+  console.log(apiKey);
+  const prompt = `
+    Generate a **detailed ${days}-day travel itinerary for ${destination}**.
+    - Suggest **3 hotels (budget, mid-range, luxury)** with names and locations.
+    - Recommend **cafes with their specialties and addresses**.
+    - List **must-visit attractions and hidden gems**.
+    - Include **a full daily schedule** (breakfast, activities, lunch, evening).
+    - Suggest **local dishes to try**.
+    - Provide estimated **travel times** between locations.
+  `;
 
-      // Generate mock itinerary based on destination
-      const activities: Record<string, { title: string; location: string; time?: string; description: string }[]> = {
-        "Paris, France": [
-          {
-            title: "Eiffel Tower Visit",
-            location: "Paris / France",
-            time: "9 AM",
-            description: "Start your day with a visit to the iconic Eiffel Tower. Arrive early to avoid crowds.",
-          },
-          {
-            title: "Notre-Dame Cathedral",
-            location: "Paris / France",
-            time: "2 PM",
-            description: "Explore the charming streets of Le Marais district and stop for lunch.",
-          },
-          {
-            title: "Palace of Versailles",
-            location: "Versailles / France",
-            time: "10 AM",
-            description: "Take a day trip to the Palace of Versailles to see the magnificent château and gardens.",
-          },
-        ],
-        "New York, NY, USA": [
-          {
-            title: "Statue of Liberty",
-            location: "New York / USA",
-            time: "10 AM",
-            description: "Start with a morning visit to the Statue of Liberty and Ellis Island.",
-          },
-          {
-            title: "Metropolitan Museum",
-            location: "New York / USA",
-            time: "1 PM",
-            description: "Spend the morning at the Metropolitan Museum of Art and explore its vast collections.",
-          },
-          {
-            title: "Brooklyn Bridge",
-            location: "New York / USA",
-            time: "9 AM",
-            description: "Explore Brooklyn Bridge and DUMBO neighborhood in the morning.",
-          },
-        ],
-        "Bali, Indonesia": [
-          {
-            title: "Tirta Empul Temple",
-            location: "Ubud / Bali",
-            time: "8 AM",
-            description: "Start your day with a visit to the sacred Tirta Empul Temple.",
-          },
-          {
-            title: "Beach Day",
-            location: "Kuta / Bali",
-            time: "10 AM",
-            description: "Spend the day at one of Bali's beautiful beaches like Kuta or Seminyak.",
-          },
-          {
-            title: "Uluwatu Temple",
-            location: "Uluwatu / Bali",
-            time: "4 PM",
-            description: "Take a day trip to the Uluwatu Temple perched on a cliff.",
-          },
-        ],
-        "Gazipur National Park": [
-          {
-            title: "Safari Adventure",
-            location: "Gazipur / Bangladesh",
-            time: "7 AM",
-            description: "Early morning safari to spot wildlife in their natural habitat.",
-          },
-          {
-            title: "Nature Hike",
-            location: "Gazipur / Bangladesh",
-            time: "10 AM",
-            description: "Guided nature hike through the lush forests and scenic trails.",
-          },
-          {
-            title: "Sunset Viewing",
-            location: "Gazipur / Bangladesh",
-            time: "5 PM",
-            description: "Enjoy breathtaking sunset views from the park's observation deck.",
-          },
-        ],
-      }
+  try {
+    const result = (await model.generateContent({
+      contents: [{ parts: [{ text: prompt }], role: "model" }],
+      generationConfig,
+    })) as GeminiResponse;
 
-      // Default activities if destination not found
-      const defaultActivities = [
-        {
-          title: "City Exploration",
-          location: "City Center",
-          time: "9 AM",
-          description: "Visit the main tourist attractions in the morning.",
-        },
-        {
-          title: "Guided Tour",
-          location: "Various Locations",
-          time: "10 AM",
-          description: "Take a guided city tour to see the highlights.",
-        },
-        {
-          title: "Historical Sites",
-          location: "Old Town",
-          time: "11 AM",
-          description: "Visit historical landmarks and monuments.",
-        },
-      ]
+    const text = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-      // Get activities for the destination or use default
-      const destinationActivities = activities[destination] || defaultActivities
+    if (!text) {
+      throw new Error("No text returned from Gemini model.");
+    }
 
-      // Create itinerary days
-      for (let i = 0; i < totalDays; i++) {
-        const activity = destinationActivities[i % destinationActivities.length]
-        days.push({
-          day: i + 1,
-          date: addDays(new Date(fromDate), i),
-          title: activity.title,
-          location: activity.location,
-          time: activity.time,
-          description: activity.description,
-          image: "/placeholder.svg?height=80&width=80",
-        })
-      }
-
-      resolve(days)
-    }, 1000)
-  })
+    const jsonData: TravelItinerary = JSON.parse(text);
+    return jsonData;
+  } catch (error) {
+    console.error("Failed to generate or parse itinerary:", error);
+    return undefined;
+  }
 }
