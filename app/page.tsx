@@ -39,13 +39,14 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center relative overflow-hidden rounded-3xl bg-white shadow-lg mx-auto my-4 max-w-6xl">
+    <main className="flex h-[95vh] flex-col items-center relative overflow-hidden rounded-3xl bg-white shadow-lg mx-auto my-4 max-w-6xl">
       <div
         className="w-full h-screen bg-cover bg-center relative"
         style={{
           backgroundImage: "url('/background2.jpg')",
         }}
       >
+        <div className="absolute inset-0 bg-black bg-opacity-30" />
         <Navbar />
 
         {/* Hero Content */}
@@ -107,7 +108,7 @@ export default function Home() {
               onClick={handleSearch}
               className="rounded-full px-8 py-6 bg-lime-400 hover:bg-lime-500 text-black font-medium"
             >
-              Explore Now
+              Generate Now
             </Button>
           </div>
         </div>
