@@ -25,6 +25,9 @@ import ImageGallery from "@/components/image-gallery";
 import BudgetPlanner from "@/components/budget-planner";
 import Image from "next/image";
 
+import { itineraryFakeData } from "@/fakeData";
+import { TimelineItinerary } from "@/components/timeline-itinerary";
+
 interface ItineraryItem {
   time: string;
   activity: string;
@@ -138,6 +141,7 @@ export default function ItineraryPage() {
         // if (itineraryData) {
         //   setItinerary(itineraryData);
         // }
+        setItinerary(itineraryFakeData);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -191,6 +195,8 @@ export default function ItineraryPage() {
       }, 500);
     });
   };
+
+  console.log(itineraryFakeData);
 
   if (loading) {
     return (
@@ -256,7 +262,7 @@ export default function ItineraryPage() {
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg text-center">
                     <Flag className="h-6 w-6 mx-auto mb-1 text-gray-700" />
-                    <div className="text-xs text-gray-500">Places:</div>
+                    <div className="text-xs text-gray-500">Total places:</div>
                     <div className="font-medium">{itinerary?.totalPlaces}</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg text-center">
@@ -273,6 +279,8 @@ export default function ItineraryPage() {
                   View All
                 </button>
               </div> */}
+
+              <TimelineItinerary />
 
               <div className="relative pl-8">
                 {/* Timeline line */}
