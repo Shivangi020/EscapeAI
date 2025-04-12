@@ -17,7 +17,7 @@ import Hero from "@/components/ui/hero";
 
 export default function Home() {
   const router = useRouter();
-  const [destination, setDestination] = useState("Chakrata");
+  const [destination, setDestination] = useState("Paris");
   const [placeId, setPlaceId] = useState("");
   const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
@@ -56,17 +56,18 @@ export default function Home() {
           {/* Search Form */}
           <div className="bg-white rounded-full p-2 flex flex-col md:flex-row items-center w-full max-w-3xl shadow-lg">
             <div className="flex items-center flex-1 px-4 py-2">
-              <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-
               <div className="flex flex-col">
                 <span className="text-xs text-gray-500">Location</span>
-                <PlaceSearch
-                  initialValue={destination}
-                  onPlaceSelect={(place) => {
-                    setDestination(place.description);
-                    setPlaceId(place.place_id);
-                  }}
-                />
+                <div className="flex">
+                  <MapPin className="h-5 w-5 text-gray-400 mr-2" />
+                  <PlaceSearch
+                    initialValue={destination}
+                    onPlaceSelect={(place) => {
+                      setDestination(place.description);
+                      setPlaceId(place.place_id);
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -88,7 +89,7 @@ export default function Home() {
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent
+                    {/* <CalendarComponent
                       mode="range"
                       selected={{
                         from: fromDate || undefined,
@@ -98,7 +99,7 @@ export default function Home() {
                         setFromDate(range?.from);
                         setToDate(range?.to);
                       }}
-                    />
+                    /> */}
                   </PopoverContent>
                 </Popover>
               </div>
