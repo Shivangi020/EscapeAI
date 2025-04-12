@@ -13,10 +13,11 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import PlaceSearch from "@/components/place-search";
 import Navbar from "@/components/ui/navbar";
+import Hero from "@/components/ui/hero";
 
 export default function Home() {
   const router = useRouter();
-  const [destination, setDestination] = useState("Gazipur National Park");
+  const [destination, setDestination] = useState("Chakrata");
   const [placeId, setPlaceId] = useState("");
   const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
@@ -49,18 +50,13 @@ export default function Home() {
 
         {/* Hero Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 max-w-4xl">
-            Explore famous global places
-          </h1>
-          <p className="text-xl text-white mb-12 max-w-2xl">
-            Discover the world's most captivating destinations, from historic
-            landmarks to hidden gems.
-          </p>
+          <Hero />
 
           {/* Search Form */}
           <div className="bg-white rounded-full p-2 flex flex-col md:flex-row items-center w-full max-w-3xl shadow-lg">
             <div className="flex items-center flex-1 px-4 py-2">
               <MapPin className="h-5 w-5 text-gray-400 mr-2" />
+
               <div className="flex flex-col">
                 <span className="text-xs text-gray-500">Location</span>
                 <PlaceSearch

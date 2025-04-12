@@ -5,7 +5,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className="flex justify-between items-center p-6 relative z-10">
       {/* Logo */}
-      <div className="text-white text-2xl font-bold">WANDERAI</div>
+      <div className="text-white text-2xl font-bold">ESCAPEAI</div>
 
       {/* Links */}
       <div className="bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center space-x-8">
@@ -16,16 +16,16 @@ const Navbar: React.FC = () => {
           About
         </a>
         <a href="#" className="font-medium text-gray-500">
-          Trip Planner
+          Bookmark Trip
         </a>
         <a href="#" className="font-medium text-gray-500">
-          Contact
+          Friends
         </a>
       </div>
 
       {/* CTA Button */}
       <Button className="rounded-full bg-white text-black hover:bg-gray-100">
-        Contact Us
+        Log In
       </Button>
     </nav>
   );

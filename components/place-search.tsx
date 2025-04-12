@@ -1,37 +1,51 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useState, useRef } from "react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface PlaceResult {
-  place_id: string
-  description: string
+  place_id: string;
+  description: string;
   structured_formatting?: {
-    main_text: string
-    secondary_text: string
-  }
+    main_text: string;
+    secondary_text: string;
+  };
 }
 
 interface PlaceSearchProps {
-  onPlaceSelect: (place: PlaceResult) => void
-  initialValue?: string
+  onPlaceSelect: (place: PlaceResult) => void;
+  initialValue?: string;
 }
 
-export default function PlaceSearch({ onPlaceSelect, initialValue = "" }: PlaceSearchProps) {
-  const [open, setOpen] = useState(false)
-  const [inputValue, setInputValue] = useState(initialValue)
-  const [predictions, setPredictions] = useState<PlaceResult[]>([])
-  const [loading, setLoading] = useState(false)
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+export default function PlaceSearch({
+  onPlaceSelect,
+  initialValue = "",
+}: PlaceSearchProps) {
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState(initialValue);
+  const [predictions, setPredictions] = useState<PlaceResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Mock Google Places API response
   const mockPlacesSearch = (input: string): Promise<PlaceResult[]> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         if (!input.trim()) {
-          resolve([])
-          return
+          resolve([]);
+          return;
         }
 
         const mockData: PlaceResult[] = [
@@ -83,59 +97,63 @@ export default function PlaceSearch({ onPlaceSelect, initialValue = "" }: PlaceS
               secondary_text: "Bangladesh",
             },
           },
-        ].filter((place) => place.description.toLowerCase().includes(input.toLowerCase()))
+        ].filter((place) =>
+          place.description.toLowerCase().includes(input.toLowerCase())
+        );
 
-        resolve(mockData)
-      }, 300)
-    })
-  }
+        resolve(mockData);
+      }, 300);
+    });
+  };
 
   const searchPlaces = async (input: string) => {
     if (!input.trim()) {
-      setPredictions([])
-      return
+      setPredictions([]);
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       // In a real app, this would call the Google Places API
-      const results = await mockPlacesSearch(input)
-      setPredictions(results)
+      const results = await mockPlacesSearch(input);
+      setPredictions(results);
     } catch (error) {
-      console.error("Error fetching place predictions:", error)
-      setPredictions([])
+      console.error("Error fetching place predictions:", error);
+      setPredictions([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleInputChange = (value: string) => {
-    setInputValue(value)
+    setInputValue(value);
 
     // Debounce API calls
     if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
+      clearTimeout(debounceTimerRef.current);
     }
 
     debounceTimerRef.current = setTimeout(() => {
-      searchPlaces(value)
-    }, 300)
-  }
+      searchPlaces(value);
+    }, 300);
+  };
 
   const handleSelectPlace = (place: PlaceResult) => {
-    setInputValue(place.description)
-    onPlaceSelect(place)
-    setOpen(false)
-  }
+    setInputValue(place.description);
+    onPlaceSelect(place);
+    setOpen(false);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="text-left font-normal text-gray-700">{inputValue || "Search destinations..."}</button>
+        <button className="text-left font-normal text-gray-700">
+          {inputValue || "Search destinations..."}
+        </button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[300px]" align="start">
         <Command>
-          <Command.Input value={inputValue} onValueChange={handleInputChange} placeholder="Search destinations..." />
+          <CommandInput value={inputValue} onValueChange={handleInputChange} />
           <CommandList>
             {loading ? (
               <CommandEmpty>Loading suggestions...</CommandEmpty>
@@ -152,7 +170,9 @@ export default function PlaceSearch({ onPlaceSelect, initialValue = "" }: PlaceS
                     <div>
                       {place.structured_formatting ? (
                         <>
-                          <div className="font-medium">{place.structured_formatting.main_text}</div>
+                          <div className="font-medium">
+                            {place.structured_formatting.main_text}
+                          </div>
                           <div className="text-sm text-muted-foreground">
                             {place.structured_formatting.secondary_text}
                           </div>
@@ -169,5 +189,5 @@ export default function PlaceSearch({ onPlaceSelect, initialValue = "" }: PlaceS
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
