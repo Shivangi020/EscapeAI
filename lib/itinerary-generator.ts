@@ -2,7 +2,7 @@ import { TravelItinerary } from "@/types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const apiKey = process.env.GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI("");
+const genAI = new GoogleGenerativeAI(apiKey);
 
 const instruction = `Follow this structure **exactly**:
 {

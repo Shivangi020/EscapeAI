@@ -56,7 +56,10 @@ export default function Home() {
                 <span className="text-xs text-gray-500">Location</span>
                 <div className="flex">
                   <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-                  <PlaceSearch initialValue={destination} />
+                  <PlaceSearch
+                    initialValue={destination}
+                    handleChange={setDestination}
+                  />
                 </div>
               </div>
             </div>

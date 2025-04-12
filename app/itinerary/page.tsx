@@ -102,7 +102,7 @@ interface BudgetData {
 
 export default function ItineraryPage() {
   const searchParams = useSearchParams();
-  const [destination, setDestination] = useState("chakrata");
+  const [destination, setDestination] = useState("");
   const [fromDate, setFromDate] = useState<Date | null>(new Date());
   const [toDate, setToDate] = useState<Date | null>(new Date());
   const [itinerary, setItinerary] = useState<TravelItinerary>();
@@ -115,33 +115,30 @@ export default function ItineraryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const place = searchParams?.get("place");
-    const fromDateParam = searchParams?.get("from");
-    const toDateParam = searchParams?.get("to");
+    const fetchData = async () => {
+      const place = searchParams?.get("place");
+      const fromDateParam = searchParams?.get("from");
+      const toDateParam = searchParams?.get("to");
 
-    if (place && fromDateParam && toDateParam) {
+      if (!place) return;
+      if (!fromDateParam) return;
+      if (!toDateParam) return;
+
       setDestination(place);
       setFromDate(new Date(fromDateParam));
       setToDate(new Date(toDateParam));
-    }
-  }, [searchParams]);
 
-  useEffect(() => {
-    const fetchData = async () => {
       setLoading(true);
       try {
         let days = 3;
-        if (toDate && fromDate) {
-          days = differenceInDays(toDate, fromDate) + 1;
+        if (toDateParam && fromDateParam) {
+          days = differenceInDays(toDateParam, fromDateParam) + 1;
         }
-        // const itineraryData = await generateItineraryUsingGemini(
-        //   destination,
-        //   days
-        // );
-        // if (itineraryData) {
-        //   setItinerary(itineraryData);
-        // }
-        setItinerary(itineraryFakeData);
+        const itineraryData = await generateItineraryUsingGemini(place, days);
+        if (itineraryData) {
+          setItinerary(itineraryData);
+        }
+        console.log(destination);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -150,7 +147,7 @@ export default function ItineraryPage() {
     };
 
     fetchData();
-  }, [destination, fromDate, toDate]);
+  }, [searchParams]);
 
   // Mock function to fetch hotels
   const fetchHotels = async (
@@ -196,8 +193,6 @@ export default function ItineraryPage() {
     });
   };
 
-  console.log(itineraryFakeData);
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -231,7 +226,7 @@ export default function ItineraryPage() {
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold flex items-center">
             <MapPin className="mr-2 h-6 w-6" />
-            {destination}
+            {itinerary?.destination || destination}
           </h1>
           {fromDate && toDate && (
             <p className="text-lg mt-2 flex items-center">
@@ -280,84 +275,7 @@ export default function ItineraryPage() {
                 </button>
               </div> */}
 
-              <TimelineItinerary />
-
-              <div className="relative pl-8">
-                {/* Timeline line */}
-                <div className="absolute left-3 top-2 bottom-0 w-0.5 bg-gray-200"></div>
-
-                {/* Departure */}
-                <div className="mb-8 relative">
-                  <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-green-500 border-4 border-white"></div>
-                  <div className="text-xs uppercase text-green-600 font-semibold mb-1">
-                    DEPARTURE
-                  </div>
-                  <div className="font-bold text-lg mb-1">Galveston / USA</div>
-                  <div className="flex items-center text-sm text-gray-500 mb-2">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>09 Feb 2022</span>
-                    <Clock className="h-4 w-4 ml-4 mr-1" />
-                    <span>4 PM</span>
-                  </div>
-                  <div className="mt-2">
-                    <Image
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-04-09%2000-22-35-8bofPsi1VsQgCfIMalMW2n8jJluS63.png"
-                      alt="Galveston"
-                      width={80}
-                      height={60}
-                      className="rounded-md object-cover"
-                    />
-                  </div>
-                </div>
-
-                {/* On the road */}
-                <div className="mb-8 relative">
-                  <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-blue-500 border-4 border-white"></div>
-                  <div className="text-xs uppercase text-blue-600 font-semibold mb-1">
-                    ON THE ROAD
-                  </div>
-                  <div className="font-bold text-lg mb-1">A day at sea</div>
-                  <div className="flex items-center text-sm text-gray-500 mb-2">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>10 Feb 2022</span>
-                  </div>
-                  <div className="mt-2">
-                    <Image
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-04-09%2000-22-35-8bofPsi1VsQgCfIMalMW2n8jJluS63.png"
-                      alt="At sea"
-                      width={80}
-                      height={60}
-                      className="rounded-md object-cover"
-                    />
-                  </div>
-                </div>
-
-                {/* Arrival */}
-                <div className="relative">
-                  <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-red-500 border-4 border-white"></div>
-                  <div className="text-xs uppercase text-red-600 font-semibold mb-1">
-                    ARRIVAL
-                  </div>
-                  <div className="font-bold text-lg mb-1">
-                    Costa Maya / Mexico
-                  </div>
-                  <div className="flex items-center text-sm text-gray-500 mb-2">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>11 Feb 2022</span>
-                    <Clock className="h-4 w-4 ml-4 mr-1" />
-                    <span>12 AM</span>
-                  </div>
-                  <div className="mt-2">
-                    <Image
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-04-09%2000-22-35-8bofPsi1VsQgCfIMalMW2n8jJluS63.png"
-                      alt="Costa Maya"
-                      width={80}
-                      height={60}
-                      className="rounded-md object-cover"
-                    />
-                  </div>
-                </div>
-              </div>
+              {itinerary && <TimelineItinerary itinerary={itinerary} />}
             </Card>
           </TabsContent>
 
