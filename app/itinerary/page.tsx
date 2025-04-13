@@ -15,45 +15,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, differenceInDays } from "date-fns";
 import Link from "next/link";
-import { generateItineraryUsingGemini } from "@/lib/itinerary-generator";
-import { fetchWeather } from "@/lib/weather-api";
-import { fetchImages } from "@/lib/image-api";
-import { getBudgetEstimates } from "@/lib/budget-api";
+
 import WeatherDisplay from "@/components/weather-display";
 import HotelCard from "@/components/hotel-card";
 import ImageGallery from "@/components/image-gallery";
 import BudgetPlanner from "@/components/budget-planner";
-import Image from "next/image";
-
-import { itineraryFakeData } from "@/fakeData";
 import { TimelineItinerary } from "@/components/timeline-itinerary";
-
-interface ItineraryItem {
-  time: string;
-  activity: string;
-  typeOfActivity: string;
-  attractionName: string;
-}
-
-interface Attraction {
-  name: string;
-  description: string;
-  address: string;
-}
-
-interface DayPlan {
-  day: number;
-  attractions: Attraction[];
-  schedule: ItineraryItem[];
-}
-
-interface TravelItinerary {
-  destination: string;
-  type: string;
-  days: number;
-  totalPlaces: number;
-  itinerary: DayPlan[];
-}
+import { TravelItinerary } from "@/types";
+import { itineraryFakeData } from "@/fakeData";
 
 interface HotelData {
   id: string;
@@ -134,11 +103,11 @@ export default function ItineraryPage() {
         if (toDateParam && fromDateParam) {
           days = differenceInDays(toDateParam, fromDateParam) + 1;
         }
-        const itineraryData = await generateItineraryUsingGemini(place, days);
-        if (itineraryData) {
-          setItinerary(itineraryData);
-        }
-        console.log(destination);
+        // const itineraryData = await generateItineraryUsingGemini(place, days);
+        // if (itineraryData) {
+        setItinerary(itineraryFakeData);
+        // }
+        // console.log(destination);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -148,50 +117,6 @@ export default function ItineraryPage() {
 
     fetchData();
   }, [searchParams]);
-
-  // Mock function to fetch hotels
-  const fetchHotels = async (
-    destination: string,
-    placeId: string
-  ): Promise<HotelData[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: "hotel1",
-            name: "Royal Caribbean International",
-            location: "Galveston / USA",
-            startDate: "09 Feb 22",
-            endDate: "14 Feb 22",
-            price: "356€",
-            duration: "5 days",
-            image:
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-04-09%2000-23-07-GMn0lHmr8ZdZETuaCBv371wMJcJMjt.png",
-          },
-          {
-            id: "hotel2",
-            name: "Norwegian Cruise Line",
-            location: "Miami / USA",
-            startDate: "15 Feb 22",
-            endDate: "22 Feb 22",
-            price: "420€",
-            duration: "7 days",
-            image: "/placeholder.svg?height=200&width=200",
-          },
-          {
-            id: "hotel3",
-            name: "Carnival Cruise",
-            location: "New Orleans / USA",
-            startDate: "01 Mar 22",
-            endDate: "08 Mar 22",
-            price: "380€",
-            duration: "7 days",
-            image: "/placeholder.svg?height=200&width=200",
-          },
-        ]);
-      }, 500);
-    });
-  };
 
   if (loading) {
     return (
