@@ -11,6 +11,18 @@ const instruction = `Follow this structure **exactly**:
   "type": "Type of destination (e.g., trek, market, beach, etc.)",
   "days": Number of days in itinerary,
   "totalPlaces": Total number of places included in the itinerary,
+  "travelInfo": {
+    "distance": "Approximate distance between origin and destination",
+    "travelTime": "Estimated travel time",
+    "transportationOptions": [
+      {
+        "mode": "Transportation mode (e.g., flight, train, bus, car)",
+        "duration": "Duration of travel",
+        "cost": "Approximate cost",
+        "description": "Brief description of the journey"
+      }
+    ]
+  },
   "itinerary": [
     {
       "day": 1,
@@ -48,13 +60,7 @@ const instruction = `Follow this structure **exactly**:
           "workshop/class",
           "scenic viewpoint",
           "urban exploration"
-],
-          "attractionName": "Attraction or place name"
-        },
-        { 
-          "time": "10:00 AM", 
-          "activity": "Visit Attraction Name",
-          "typeOfActivity": **MUST** be one of the above categories,
+          ],
           "attractionName": "Attraction or place name"
         }
       ]
@@ -77,36 +83,42 @@ const generationConfig = {
   responseMimeType: "application/json",
 };
 
-type Itinerary = Record<string, any>; // You can define a stricter interface based on expected structure
-
-type GeminiContentPart = { text: string };
-type GeminiCandidate = { content: { parts: GeminiContentPart[] } };
-type GeminiResponse = {
-  response: {
-    candidates: GeminiCandidate[];
-  };
-};
-
 export async function generateItineraryUsingGemini(
-  destination: string,
+  fromLocation: string,
+  toLocation: string,
   days: number = 3
 ): Promise<TravelItinerary | undefined> {
-  console.log(apiKey);
   const prompt = `
-    Generate a **detailed ${days}-day travel itinerary for ${destination}**.
-    - Suggest **3 hotels (budget, mid-range, luxury)** with names and locations.
-    - Recommend **cafes with their specialties and addresses**.
-    - List **must-visit attractions and hidden gems**.
-    - Include **a full daily schedule** (breakfast, activities, lunch, evening).
-    - Suggest **local dishes to try**.
-    - Provide estimated **travel times** between locations.
+    Generate a detailed ${days}-day travel itinerary from ${fromLocation} to ${toLocation}.
+    
+    Travel Information:
+    - Calculate the approximate distance between ${fromLocation} and ${toLocation}
+    - List all possible transportation options (flight, train, bus, car) with:
+      * Duration of travel
+      * Approximate costs
+      * Brief description of the journey
+      * Best recommended option based on time and budget
+    
+    Itinerary Details:
+    - Suggest 3 hotels (budget, mid-range, luxury) with names and locations
+    - Recommend cafes with their specialties and addresses
+    - List must-visit attractions and hidden gems
+    - Include a full daily schedule (breakfast, activities, lunch, evening)
+    - Suggest local dishes to try
+    - Provide estimated travel times between locations within the destination
+    
+    Additional Information:
+    - Include any visa requirements if international travel
+    - Mention any seasonal considerations
+    - Note any cultural or local customs to be aware of
+    - Include emergency contact numbers if relevant
   `;
 
   try {
-    const result = (await model.generateContent({
+    const result = await model.generateContent({
       contents: [{ parts: [{ text: prompt }], role: "model" }],
       generationConfig,
-    })) as GeminiResponse;
+    });
 
     const text = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
 

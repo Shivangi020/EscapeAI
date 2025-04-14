@@ -22,7 +22,30 @@ export interface TravelItinerary {
   type: string;
   days: number;
   totalPlaces: number;
-  itinerary: DayPlan[];
+  travelInfo: {
+    distance: string;
+    travelTime: string;
+    transportationOptions: {
+      mode: string;
+      duration: string;
+      cost: string;
+      description: string;
+    }[];
+  };
+  itinerary: {
+    day: number;
+    attractions: {
+      name: string;
+      description: string;
+      address: string;
+    }[];
+    schedule: {
+      time: string;
+      activity: string;
+      typeOfActivity: string;
+      attractionName: string;
+    }[];
+  }[];
 }
 
 export interface HotelData {

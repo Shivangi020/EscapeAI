@@ -10,6 +10,10 @@ import {
   Flag,
   Clock,
   DollarSign,
+  Train,
+  Plane,
+  Bus,
+  Car,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -72,7 +76,8 @@ interface BudgetData {
 
 export default function ItineraryPage() {
   const searchParams = useSearchParams();
-  const [destination, setDestination] = useState("");
+  const [fromLocation, setFromLocation] = useState("");
+  const [toLocation, setToLocation] = useState("");
   const [fromDate, setFromDate] = useState<Date | null>(new Date());
   const [toDate, setToDate] = useState<Date | null>(new Date());
   const [itinerary, setItinerary] = useState<TravelItinerary>();
@@ -86,15 +91,17 @@ export default function ItineraryPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const place = searchParams?.get("place");
-      const fromDateParam = searchParams?.get("from");
-      const toDateParam = searchParams?.get("to");
+      const from = searchParams?.get("from");
+      const to = searchParams?.get("to");
+      const fromDateParam = searchParams?.get("fromDate");
+      const toDateParam = searchParams?.get("toDate");
 
-      if (!place) return;
+      if (!from || !to) return;
       if (!fromDateParam) return;
       if (!toDateParam) return;
 
-      setDestination(place);
+      setFromLocation(from);
+      setToLocation(to);
       setFromDate(new Date(fromDateParam));
       setToDate(new Date(toDateParam));
 
@@ -102,9 +109,15 @@ export default function ItineraryPage() {
       try {
         let days = 3;
         if (toDateParam && fromDateParam) {
-          days = differenceInDays(toDateParam, fromDateParam) + 1;
+          days =
+            differenceInDays(new Date(toDateParam), new Date(fromDateParam)) +
+            1;
         }
-        const itineraryData = await generateItineraryUsingGemini(place, days);
+        const itineraryData = await generateItineraryUsingGemini(
+          from,
+          to,
+          days
+        );
         if (itineraryData) {
           setItinerary(itineraryData);
         }
@@ -124,13 +137,28 @@ export default function ItineraryPage() {
         <div className="text-center">
           <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-sky-600 border-r-transparent"></div>
           <h2 className="mt-4 text-xl font-semibold">
-            Planning your perfect trip to {destination}...
+            Planning your perfect trip from {fromLocation} to {toLocation}...
           </h2>
           <p className="mt-2 text-gray-600">This may take a moment</p>
         </div>
       </div>
     );
   }
+
+  const getTransportIcon = (mode: string) => {
+    switch (mode.toLowerCase()) {
+      case "flight":
+        return <Plane className="h-5 w-5" />;
+      case "train":
+        return <Train className="h-5 w-5" />;
+      case "bus":
+        return <Bus className="h-5 w-5" />;
+      case "car":
+        return <Car className="h-5 w-5" />;
+      default:
+        return <Plane className="h-5 w-5" />;
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gray-50 pb-12">
@@ -151,7 +179,7 @@ export default function ItineraryPage() {
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold flex items-center">
             <MapPin className="mr-2 h-6 w-6" />
-            {itinerary?.destination || destination}
+            {fromLocation} → {toLocation}
           </h1>
           {fromDate && toDate && (
             <p className="text-lg mt-2 flex items-center">
@@ -165,10 +193,9 @@ export default function ItineraryPage() {
 
       <div className="container mx-auto px-4 -mt-6">
         <Tabs defaultValue="itinerary" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 bg-white shadow-lg rounded-lg">
+          <TabsList className="grid w-full grid-cols-2 bg-white shadow-lg rounded-lg">
             <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-            {/* <TabsTrigger value="hotels">Hotels</TabsTrigger>
-            <TabsTrigger value="weather">Weather</TabsTrigger> */}
+            <TabsTrigger value="travel-info">Travel Info</TabsTrigger>
           </TabsList>
 
           <TabsContent value="itinerary" className="mt-6">
@@ -193,61 +220,71 @@ export default function ItineraryPage() {
                 </div>
               </div>
 
-              {/* <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">Cruise program</h2>
-                <button className="text-blue-600 text-sm font-medium">
-                  View All
-                </button>
-              </div> */}
-
               {itinerary && <TimelineItinerary itineraryData={itinerary} />}
             </Card>
           </TabsContent>
+          <TabsContent value="travel-info" className="mt-6">
+            <Card className="bg-white p-6 rounded-xl">
+              {itinerary?.travelInfo && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold mb-4">Travel Information</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <MapPin className="h-5 w-5 text-blue-500" />
+                        <span className="font-medium">Distance</span>
+                      </div>
+                      <p className="text-gray-600">
+                        {itinerary.travelInfo.distance}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Clock className="h-5 w-5 text-blue-500" />
+                        <span className="font-medium">Travel Time</span>
+                      </div>
+                      <p className="text-gray-600">
+                        {itinerary.travelInfo.travelTime}
+                      </p>
+                    </div>
+                  </div>
 
-          <TabsContent value="hotels" className="mt-6">
-            <h2 className="text-2xl font-bold mb-4">Recommended Hotels</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {hotels.map((hotel) => (
-                <HotelCard key={hotel.id} hotel={hotel} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="weather" className="mt-6">
-            <h2 className="text-2xl font-bold mb-4">Weather Forecast</h2>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {weather.map((day) => (
-                    <WeatherDisplay
-                      key={day.date.toISOString()}
-                      weather={day}
-                    />
-                  ))}
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-3">
+                      Transportation Options
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {itinerary.travelInfo.transportationOptions.map(
+                        (option, index) => (
+                          <div
+                            key={index}
+                            className="bg-gray-50 p-4 rounded-lg"
+                          >
+                            <div className="flex items-center space-x-2 mb-2">
+                              {getTransportIcon(option.mode)}
+                              <span className="font-medium">{option.mode}</span>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm text-gray-600">
+                                <span className="font-medium">Duration:</span>{" "}
+                                {option.duration}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                <span className="font-medium">Cost:</span>{" "}
+                                {option.cost}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {option.description}
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
+              )}
             </Card>
-          </TabsContent>
-
-          <TabsContent value="gallery" className="mt-6">
-            <h2 className="text-2xl font-bold mb-4">Gallery</h2>
-            <ImageGallery images={images} />
-          </TabsContent>
-
-          <TabsContent value="budget" className="mt-6">
-            <h2 className="text-2xl font-bold mb-4 flex items-center">
-              <DollarSign className="mr-2 h-6 w-6" />
-              Budget Planner
-            </h2>
-            {budget && (
-              <BudgetPlanner
-                budget={budget}
-                userBudget={userBudget}
-                onBudgetChange={setUserBudget}
-                destination={destination}
-                duration={differenceInDays(toDate || "", fromDate || "") + 1}
-              />
-            )}
           </TabsContent>
         </Tabs>
       </div>
