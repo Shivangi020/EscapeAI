@@ -1,4 +1,3 @@
-import { itineraryFakeData } from "@/fakeData";
 import { getImageFromGoogle } from "@/lib/image-api";
 import { TravelItinerary } from "@/types";
 import {
@@ -27,12 +26,14 @@ const activityIcons = {
 };
 
 export function TimelineItinerary({
-  itinerary,
+  itineraryData,
 }: {
-  itinerary: TravelItinerary;
+  itineraryData: TravelItinerary;
 }) {
   const [expandedDays, setExpandedDays] = useState<number[]>([]);
-  const [attractionImages, setAttractionImages] = useState({});
+  const [attractionImages, setAttractionImages] = useState<
+    Record<string, string | undefined>
+  >({});
 
   const callfetchPlaceImage = async (
     dataOfDay: {
@@ -41,42 +42,49 @@ export function TimelineItinerary({
       address: string;
     }[]
   ) => {
-    const temp = { ...attractionImages };
-
+    const temp: Record<string, string | undefined> = { ...attractionImages };
     for (const days of dataOfDay || []) {
       const { name } = days;
 
-      // const url = await getImageFromGoogle(name);
-      // temp[name] = url;
+      if (name && !(name in attractionImages)) {
+        const url = await getImageFromGoogle(name);
+        if (url) {
+          temp[name] = url;
+        }
+      }
     }
     setAttractionImages(temp);
   };
 
-  console.log(attractionImages);
-
   const toggleDay = async (day: number) => {
-    setExpandedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-    const { itinerary } = itineraryFakeData;
-    const { attractions } = itinerary[day - 1];
+    const willExpand = !expandedDays.includes(day);
 
-    await callfetchPlaceImage(attractions);
+    setExpandedDays((prev) =>
+      willExpand ? [...prev, day] : prev.filter((d) => d !== day)
+    );
+
+    if (willExpand) {
+      const { itinerary } = itineraryData;
+      const { attractions } = itinerary[day - 1];
+      await callfetchPlaceImage(attractions);
+    }
   };
+
+  console.log(itineraryData);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          {itineraryFakeData.destination}
+        {/* <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          {itineraryData.destination}
         </h1>
         <p className="text-lg text-gray-600">
-          {itineraryFakeData.type} • {itineraryFakeData.days} Days
-        </p>
+          {itineraryData.type} • {itineraryData.days} Days
+        </p> */}
       </div>
 
       <div className="space-y-8">
-        {itineraryFakeData.itinerary.map((day) => (
+        {itineraryData.itinerary.map((day) => (
           <div key={day.day} className="relative group">
             <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-blue-400 to-indigo-400 rounded-full"></div>
 

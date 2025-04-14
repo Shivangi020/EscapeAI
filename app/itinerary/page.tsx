@@ -23,6 +23,7 @@ import BudgetPlanner from "@/components/budget-planner";
 import { TimelineItinerary } from "@/components/timeline-itinerary";
 import { TravelItinerary } from "@/types";
 import { itineraryFakeData } from "@/fakeData";
+import { generateItineraryUsingGemini } from "@/lib/itinerary-generator";
 
 interface HotelData {
   id: string;
@@ -103,11 +104,10 @@ export default function ItineraryPage() {
         if (toDateParam && fromDateParam) {
           days = differenceInDays(toDateParam, fromDateParam) + 1;
         }
-        // const itineraryData = await generateItineraryUsingGemini(place, days);
-        // if (itineraryData) {
-        setItinerary(itineraryFakeData);
-        // }
-        // console.log(destination);
+        const itineraryData = await generateItineraryUsingGemini(place, days);
+        if (itineraryData) {
+          setItinerary(itineraryData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -165,10 +165,10 @@ export default function ItineraryPage() {
 
       <div className="container mx-auto px-4 -mt-6">
         <Tabs defaultValue="itinerary" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-white shadow-lg rounded-lg">
+          <TabsList className="grid w-full grid-cols-1 bg-white shadow-lg rounded-lg">
             <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-            <TabsTrigger value="hotels">Hotels</TabsTrigger>
-            <TabsTrigger value="weather">Weather</TabsTrigger>
+            {/* <TabsTrigger value="hotels">Hotels</TabsTrigger>
+            <TabsTrigger value="weather">Weather</TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="itinerary" className="mt-6">
@@ -200,7 +200,7 @@ export default function ItineraryPage() {
                 </button>
               </div> */}
 
-              {itinerary && <TimelineItinerary itinerary={itinerary} />}
+              {itinerary && <TimelineItinerary itineraryData={itinerary} />}
             </Card>
           </TabsContent>
 

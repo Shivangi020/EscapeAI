@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -17,7 +17,8 @@ import Hero from "@/components/ui/hero";
 
 export default function Home() {
   const router = useRouter();
-  const [destination, setDestination] = useState("Paris");
+  const [fromLocation, setFromLocation] = useState("");
+  const [toLocation, setToLocation] = useState("");
 
   const [toDate, setToDate] = useState<Date>(() => {
     const date = new Date();
@@ -28,9 +29,11 @@ export default function Home() {
 
   const handleGenerateItinerary = async () => {
     router.push(
-      `/itinerary?place=${encodeURIComponent(destination)}&from=${
+      `/itinerary?from=${encodeURIComponent(
+        fromLocation
+      )}&to=${encodeURIComponent(toLocation)}&fromDate=${
         fromDate?.toISOString() || ""
-      }&to=${toDate?.toISOString() || ""}`
+      }&toDate=${toDate?.toISOString() || ""}`
     );
   };
 
@@ -50,35 +53,68 @@ export default function Home() {
           <Hero />
 
           {/* Search Form */}
-          <div className="bg-white rounded-full p-2 flex flex-col md:flex-row items-center w-full max-w-3xl shadow-lg">
-            <div className="flex items-center flex-1 px-4 py-2">
+          <div className="bg-white rounded-2xl p-6 flex flex-col md:flex-row items-center w-full max-w-4xl shadow-lg space-y-4 md:space-y-0 md:space-x-4">
+            {/* From Location */}
+            <div className="flex-1 w-full">
               <div className="flex flex-col">
-                <span className="text-xs text-gray-500">Location</span>
-                <div className="flex">
+                <span className="text-sm font-medium text-gray-700 mb-1">
+                  From
+                </span>
+                <div className="flex items-center bg-gray-50 rounded-lg px-4 py-2 border border-gray-200 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
                   <MapPin className="h-5 w-5 text-gray-400 mr-2" />
                   <PlaceSearch
-                    initialValue={destination}
-                    handleChange={setDestination}
+                    initialValue={fromLocation}
+                    handleChange={setFromLocation}
+                    placeholder="Enter departure location"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="w-px h-10 bg-gray-200 hidden md:block" />
+            {/* Arrow Icon */}
+            <div className="hidden md:flex items-center justify-center">
+              <div className="bg-gray-100 rounded-full p-2">
+                <ArrowRight className="h-5 w-5 text-gray-600" />
+              </div>
+            </div>
 
-            <div className="flex items-center flex-1 px-4 py-2">
-              <Calendar className="h-5 w-5 text-gray-400 mr-2" />
+            {/* To Location */}
+            <div className="flex-1 w-full">
               <div className="flex flex-col">
-                <span className="text-xs text-gray-500">Date</span>
+                <span className="text-sm font-medium text-gray-700 mb-1">
+                  To
+                </span>
+                <div className="flex items-center bg-gray-50 rounded-lg px-4 py-2 border border-gray-200 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                  <MapPin className="h-5 w-5 text-gray-400 mr-2" />
+                  <PlaceSearch
+                    initialValue={toLocation}
+                    handleChange={setToLocation}
+                    placeholder="Enter destination"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full md:w-px h-px md:h-10 bg-gray-200" />
+
+            {/* Date Picker */}
+            <div className="flex-1 w-full">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-gray-700 mb-1">
+                  When
+                </span>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="text-left font-normal text-gray-700">
-                      {fromDate && toDate
-                        ? `${format(fromDate, "d MMM")} - ${format(
-                            toDate,
-                            "d MMM"
-                          )}`
-                        : "Choose Date"}
+                    <button className="flex items-center bg-gray-50 rounded-lg px-4 py-2 border border-gray-200 hover:border-blue-500 hover:ring-1 hover:ring-blue-500 transition-all text-left">
+                      <Calendar className="h-5 w-5 text-gray-400 mr-2" />
+                      <span className="text-gray-700">
+                        {fromDate && toDate
+                          ? `${format(fromDate, "d MMM")} - ${format(
+                              toDate,
+                              "d MMM"
+                            )}`
+                          : "Choose Date"}
+                      </span>
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -89,8 +125,8 @@ export default function Home() {
                         to: toDate || undefined,
                       }}
                       onSelect={(range) => {
-                        // setFromDate(range?.from);
-                        // setToDate(range?.to);
+                        if (range?.from) setFromDate(range.from);
+                        if (range?.to) setToDate(range.to);
                       }}
                     />
                   </PopoverContent>
@@ -100,7 +136,7 @@ export default function Home() {
 
             <Button
               onClick={handleGenerateItinerary}
-              className="rounded-full px-8 py-6 bg-lime-400 hover:bg-lime-500 text-black font-medium"
+              className="w-full md:w-auto rounded-lg px-8 py-6 bg-lime-400 hover:bg-lime-500 text-black font-medium transition-colors"
             >
               Generate Now
             </Button>

@@ -18,32 +18,16 @@ export const getImageFromGoogle = async (
   placeName: string
 ): Promise<string | null> => {
   try {
-    // const t = "w0dFHGtUkTZzQF0TsUY13ruyAzI= ";
-    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=Spicy%20Vegetarian%20Food%20in%20Sydney%20Australia&key=${GOOGLE_PLACES_API_KEY}`;
-
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(
-        placeName
-      )}&inputtype=textquery&fields=photos&key=${GOOGLE_PLACES_API_KEY}`
+      `/api/places?searchQuery=${encodeURIComponent(placeName)}`
     );
+    const { place_id, photo_reference } = await response.json();
 
-    const response2 = await fetch(url);
+    console.log(place_id, photo_reference, response);
 
-    console.log(response, response2, "wtf res");
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const placeResponse = await response.json();
-    const photoReference =
-      placeResponse.candidates?.[0]?.photos?.[0]?.photo_reference;
-
-    console.log("This is Image Data", placeResponse);
-
-    if (photoReference) {
-      // const imageUrl = await getImageUrl(photoReference);
-      // results.push({ placeId: placeName, imageUrl });
-      // return imageUrl;
+    if (photo_reference) {
+      const image = await getImageUrl(photo_reference);
+      return image;
     }
 
     return null;
