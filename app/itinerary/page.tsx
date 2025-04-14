@@ -193,9 +193,21 @@ export default function ItineraryPage() {
 
       <div className="container mx-auto px-4 -mt-6">
         <Tabs defaultValue="itinerary" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white shadow-lg rounded-lg">
-            <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-            <TabsTrigger value="travel-info">Travel Info</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-gray-50 shadow-sm rounded-lg p-1">
+            <TabsTrigger
+              value="itinerary"
+              className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm hover:bg-gray-100 transition-all duration-200 rounded-md px-4 py-2 flex items-center gap-2 text-gray-600"
+            >
+              <Calendar className="h-4 w-4" />
+              Itinerary
+            </TabsTrigger>
+            <TabsTrigger
+              value="travel-info"
+              className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm hover:bg-gray-100 transition-all duration-200 rounded-md px-4 py-2 flex items-center gap-2 text-gray-600"
+            >
+              <Plane className="h-4 w-4" />
+              Travel Info
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="itinerary" className="mt-6">
