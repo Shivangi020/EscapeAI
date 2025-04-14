@@ -8,7 +8,7 @@ const Navbar: React.FC = () => {
       <div className="text-white text-2xl font-bold">ESCAPEAI</div>
 
       {/* Links */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center space-x-8">
+      {/* <div className="bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center space-x-8">
         <a href="#" className="font-medium text-black">
           Home
         </a>
@@ -21,12 +21,12 @@ const Navbar: React.FC = () => {
         <a href="#" className="font-medium text-gray-500">
           Friends
         </a>
-      </div>
+      </div> */}
 
       {/* CTA Button */}
-      <Button className="rounded-full bg-white text-black hover:bg-gray-100">
+      {/* <Button className="rounded-full bg-white text-black hover:bg-gray-100">
         Log In
-      </Button>
+      </Button> */}
     </nav>
   );
 };

@@ -28,6 +28,7 @@ import { TimelineItinerary } from "@/components/timeline-itinerary";
 import { TravelItinerary } from "@/types";
 import { itineraryFakeData } from "@/fakeData";
 import { generateItineraryUsingGemini } from "@/lib/itinerary-generator";
+import DownloadButton from "@/components/download";
 
 interface HotelData {
   id: string;
@@ -163,7 +164,7 @@ export default function ItineraryPage() {
   return (
     <main className="min-h-screen bg-gray-50 pb-12">
       <div
-        className="text-white py-8"
+        className="text-white py-8 flex"
         style={{
           backgroundImage: "url('/background.jpg')",
           backgroundPosition: "right",
@@ -189,6 +190,7 @@ export default function ItineraryPage() {
             </p>
           )}
         </div>
+        {itinerary && <DownloadButton itineraryData={itinerary} />}
       </div>
 
       <div className="container mx-auto px-4 -mt-6">

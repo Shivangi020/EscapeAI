@@ -138,7 +138,7 @@ export default function Home() {
               onClick={handleGenerateItinerary}
               className="w-full md:w-auto rounded-lg px-8 py-6 bg-lime-400 hover:bg-lime-500 text-black font-medium transition-colors"
             >
-              Generate Now
+              Generate Itinerary
             </Button>
           </div>
         </div>

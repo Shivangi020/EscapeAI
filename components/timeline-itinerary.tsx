@@ -11,7 +11,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const activityIcons = {
   food: <Utensils className="w-4 h-4 text-amber-500" />,
@@ -70,7 +70,9 @@ export function TimelineItinerary({
     }
   };
 
-  console.log(itineraryData);
+  useEffect(() => {
+    toggleDay(1);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
